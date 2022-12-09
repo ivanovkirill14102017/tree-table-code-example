@@ -1,0 +1,60 @@
+@startuml
+
+'left to right direction
+top to bottom direction
+
+node Logics  {
+object Logic {
+TreeTableParentChildSupport
+FindAndCreateNewItemsLogic
+}
+}
+database Repositories {
+object Repo {
+TreeTableRootItemsRepo
+TreeTableItemRepo
+}
+}
+rectangle ViewModels  {
+class TreeTableOptions
+class TreeTableItemVM
+class TreeTableVM
+abstract VM_Base {
++ RenderCallback
+}
+}
+
+package RenderComponents {
+abstract UC_TreeTableColumn
+object React {
+UC_TreeTableItem
+UC_TreeTable
+}
+}
+
+' Components Knows
+React::UC_TreeTableItem -d-> TreeTableOptions  
+React::UC_TreeTableItem --> TreeTableItemVM 
+React::UC_TreeTable --> TreeTableOptions
+React::UC_TreeTable --> TreeTableVM 
+React -r-> UC_TreeTableColumn
+
+' Inherits
+TreeTableItemVM -d-|> VM_Base
+TreeTableVM -d-|> VM_Base
+
+' Classes Knows about each others
+TreeTableVM -l-> TreeTableItemVM 
+TreeTableVM --> Repo::TreeTableRootItemsRepo
+TreeTableVM --> Repo::TreeTableItemRepo
+TreeTableVM --> Logic::FindAndCreateNewItemsLogic
+TreeTableItemVM --> Logic::TreeTableParentChildSupport
+Logic::FindAndCreateNewItemsLogic --> Repo::TreeTableItemRepo 
+Logic::FindAndCreateNewItemsLogic --> Repo::TreeTableRootItemsRepo
+TreeTableVM -u-> TreeTableOptions  
+
+' Callbacks
+VM_Base::RenderCallback ..* React
+
+
+@enduml
