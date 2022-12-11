@@ -3,14 +3,12 @@ import { TreeTableItemVM } from "../ViewModels/TreeTableItemVM";
 /** Just store roots - simplest Repository pattern. */
 export interface ITreeTableRootItemsRepo
 {
-    RenderCallback:()=>void;
     get RootItems(): ReadonlyArray<TreeTableItemVM>;
     AddItem(item: TreeTableItemVM): boolean;
     RemoveItem(item: TreeTableItemVM): boolean;
 }
 export class TreeTableRootItemsRepo implements ITreeTableRootItemsRepo
 {
-    public RenderCallback = () => { };
     public constructor()
     {
     }
@@ -21,7 +19,6 @@ export class TreeTableRootItemsRepo implements ITreeTableRootItemsRepo
         if (this._RootItems.indexOf(item) != -1)
             return false;
         this._RootItems.push(item);
-        this.RenderCallback();
         return true;
     }
     public RemoveItem(item: TreeTableItemVM): boolean
@@ -32,7 +29,6 @@ export class TreeTableRootItemsRepo implements ITreeTableRootItemsRepo
         if (item.Parent == null)
             return false;
         this._RootItems.splice(index, 1);
-        this.RenderCallback();
         return true;
     }
 };

@@ -88,32 +88,5 @@ describe("TreeTableRootItemsRepo", () =>
             let ret = repo.RemoveItem(item1);
             //Assert
             expect(ret).toBe(false);
-        }),
-        test("Add_SuccessMustCallRenderCallback", () =>
-        {
-            //Arrange
-            let repo = new TreeTableRootItemsRepo();
-            let item1 = new TreeTableItemVM({}, 0, 1);
-            let f = jest.fn();
-            repo.RenderCallback = f;
-            //Action
-            repo.AddItem(item1);
-            //Assert
-            expect(f).toBeCalledTimes(1);
-        }),
-        test("Remove_SuccessMustCallRenderCallback", () =>
-        {
-            //Arrange
-            let repo = new MockedTreeTableRootItemsRepo();
-            let item1 = new TreeTableItemVM({}, 0, 1);
-            let item2 = new TreeTableItemVM({}, 1, 2);
-            item1.SetParent(item2);
-            repo.SetRootItems([item1]);
-            let f = jest.fn();
-            repo.RenderCallback = f;
-            //Action
-            repo.RemoveItem(item1);
-            //Assert
-            expect(f).toBeCalledTimes(1);
         })
 });

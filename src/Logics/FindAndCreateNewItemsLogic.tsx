@@ -1,6 +1,7 @@
 import { ITreeTableItemRepo } from "../Repositories/TreeTableItemRepo";
 import { ITreeTableRootItemsRepo } from "../Repositories/TreeTableRootItemsRepo";
 import { TreeTableItemVM } from "../ViewModels/TreeTableItemVM";
+import { ITreeTableStorageLogic } from "./TreeTableStorageLogic";
 
 
 export interface IFindAndCreateNewItemsLogic
@@ -17,19 +18,16 @@ export interface IFindAndCreateNewItemsLogic
         Проставляет родителей и если их нет - помещает в корень. */
     SetupNewItemsParentOrAddAsRoot(newItems: TreeTableItemVM[]): void;
 };
-export class FindAndCreateNewItemsLogic
+export class FindAndCreateNewItemsLogic implements IFindAndCreateNewItemsLogic
 {
-    private readonly TreeTableItemRepo: ITreeTableItemRepo;
-    private readonly TreeTableRootItemsRepo: ITreeTableRootItemsRepo;
-    public constructor(treeTableItemRepo: ITreeTableItemRepo, treeTableRootItemsRepo: ITreeTableRootItemsRepo)
+    private readonly _TreeTableStorageLogic: ITreeTableStorageLogic;
+    public constructor(treeTableStorageLogic:ITreeTableStorageLogic)
     {
-        this.TreeTableItemRepo = treeTableItemRepo;
-        this.TreeTableRootItemsRepo = treeTableRootItemsRepo;
+        this._TreeTableStorageLogic = treeTableStorageLogic;
     }
     public ProcessItems(ds: ReadonlyArray<any>)
     {
-        if (ds.length != new Set(ds.map(x => x[this.TreeTableItemRepo.IdProperyName])).size)
-            throw new RangeError("Contain dublicate PK");
+        this._TreeTableStorageLogic.ThrowIfContainDublicates(ds);
         const newItems = this.FindAndCreateNewItems(ds);
         this.RemoveRootsIfParentAppeared(newItems);
         this.SetupNewItemsParentOrAddAsRoot(newItems);
@@ -39,9 +37,9 @@ export class FindAndCreateNewItemsLogic
         let newItems: TreeTableItemVM[] = [];
         ds.forEach(d =>
         {
-            if (!this.TreeTableItemRepo.HasItemByData(d))
+            if (!this._TreeTableStorageLogic.HasItemByData(d))
             {
-                let tti = this.TreeTableItemRepo.AddItemAsData(d);
+                let tti = this._TreeTableStorageLogic.AddItemAsData(d);
                 newItems.push(tti);
             }
         });
@@ -49,7 +47,7 @@ export class FindAndCreateNewItemsLogic
     }
     public RemoveRootsIfParentAppeared(newItems: TreeTableItemVM[])
     {
-        this.TreeTableRootItemsRepo.RootItems.map(x => x)
+        this._TreeTableStorageLogic.RootItems.map(x => x)
             .forEach(rootItem =>
             {
                 let parentId = rootItem.DataParentId;
@@ -59,8 +57,8 @@ export class FindAndCreateNewItemsLogic
                 if (parentItem == null)
                     return;
 
-                this.TreeTableItemRepo.SetParentChild(parentItem, rootItem);
-                this.TreeTableRootItemsRepo.RemoveItem(rootItem);
+                this._TreeTableStorageLogic.SetParentChild(parentItem, rootItem);
+                this._TreeTableStorageLogic.RemoveRootItem(rootItem);
             });
     }
     public SetupNewItemsParentOrAddAsRoot(newItems: TreeTableItemVM[])
@@ -72,7 +70,7 @@ export class FindAndCreateNewItemsLogic
             if (parentIdOfNewItem == newItem.Id)
                 throw "item has parentId to itself " + newItem.Id;
 
-            let parentItemOfNewItem = parentIdOfNewItem != null ? this.TreeTableItemRepo.GetItemById(parentIdOfNewItem) : null;
+            let parentItemOfNewItem = this._TreeTableStorageLogic.GetItemById(parentIdOfNewItem);
             if (parentItemOfNewItem == null && parentIdOfNewItem != null)
             {
                 if (!newItemsSet.has(parentIdOfNewItem))
@@ -81,11 +79,12 @@ export class FindAndCreateNewItemsLogic
             }
             if (parentItemOfNewItem == null)
             {
-                this.TreeTableRootItemsRepo.AddItem(newItem);
+                this._TreeTableStorageLogic.AddRootItem(newItem);
                 return;
             }
-            this.TreeTableItemRepo.SetParentChild(parentItemOfNewItem, newItem);
+            this._TreeTableStorageLogic.SetParentChild(parentItemOfNewItem, newItem);
         });
     }
+
 
 };

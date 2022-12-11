@@ -1,4 +1,5 @@
 import { IFindAndCreateNewItemsLogic, FindAndCreateNewItemsLogic } from "../Logics/FindAndCreateNewItemsLogic";
+import { ITreeTableStorageLogic, TreeTableStorageLogic } from "../Logics/TreeTableStorageLogic";
 import { ITreeTableItemRepo, TreeTableItemRepo } from "../Repositories/TreeTableItemRepo";
 import { ITreeTableRootItemsRepo, TreeTableRootItemsRepo } from "../Repositories/TreeTableRootItemsRepo";
 import { TreeTableItemVM } from "./TreeTableItemVM";
@@ -26,25 +27,25 @@ export class TreeTableVM extends VM_Base
     public constructor()
     {
         super();
-        this._TreeTableItemRepo = new TreeTableItemRepo();
-        this._TreeTableRootItemsRepo = new TreeTableRootItemsRepo();
-        this._FindAndCreateNewItemsLogic = new FindAndCreateNewItemsLogic(this._TreeTableItemRepo, this._TreeTableRootItemsRepo);
+        const treeTableItemRepo = new TreeTableItemRepo();
+        const treeTableRootItemsRepo = new TreeTableRootItemsRepo();
+        this._TreeTableStorageLogic = new TreeTableStorageLogic(treeTableItemRepo, treeTableRootItemsRepo);
+        this._FindAndCreateNewItemsLogic = new FindAndCreateNewItemsLogic(this._TreeTableStorageLogic);
     }
     private _FindAndCreateNewItemsLogic: IFindAndCreateNewItemsLogic;
-    private _TreeTableItemRepo: ITreeTableItemRepo;
-    private _TreeTableRootItemsRepo: ITreeTableRootItemsRepo;
+    private _TreeTableStorageLogic: ITreeTableStorageLogic;
     /** Contain other shared properties like indent size, indicate symbols and others. 
         Содержит общие свойства, например отступ и символы развернуть/свернуть. */
     public readonly Options: TreeTableOptions = new TreeTableOptions();
     /** Indicate UI catched exception. */
     public get RuinedErrorText(): string | null { return this._RuinedErrorText; } private set RuinedErrorText(value: string | null) { this._RuinedErrorText = value; } private _RuinedErrorText: string | null = null;
-    public get RootItems(): ReadonlyArray<TreeTableItemVM> { return this._TreeTableRootItemsRepo.RootItems; }
+    public get RootItems(): ReadonlyArray<TreeTableItemVM> { return this._TreeTableStorageLogic.RootItems; }
     /** Models array that present VM. */
     public get DataSource(): ReadonlyArray<any> { return this._DataSource; } private _DataSource: any[] = [];
     public SetDataSource(dataSource: any[], idPropertyName: string = "Id", parentIdPropertyName: string = "ParentId"): TreeTableVM
     {
         this._DataSource = dataSource;
-        this._TreeTableItemRepo.SetPropertyNames(idPropertyName, parentIdPropertyName);
+        this._TreeTableStorageLogic.SetPropertyNames(idPropertyName, parentIdPropertyName);
         this.ProcessItems();
         return this;
     }
@@ -55,7 +56,7 @@ export class TreeTableVM extends VM_Base
     }
     private ProcessItems()
     {
-        this._TreeTableRootItemsRepo.RenderCallback = this.RenderCallback;
+        this._TreeTableStorageLogic.RenderCallback = this.RenderCallback;
         try
         {
             this._FindAndCreateNewItemsLogic.ProcessItems(this.DataSource);

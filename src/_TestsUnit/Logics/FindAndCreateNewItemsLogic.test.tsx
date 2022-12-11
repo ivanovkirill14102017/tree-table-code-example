@@ -7,6 +7,7 @@ import { TreeTableParentChildSupport } from "../../Logics/TreeTableParentChildSu
 import { Mock_TreeTableParentChildSupport } from "./TreeTableParentChildSupport.test";
 import { Mock_ITreeTableItemRepo } from "../Repositories/TreeTableItemRepo.test";
 import { Mock_ITreeTableRootItemsRepo } from "../Repositories/TreeTableRootItemsRepo.test";
+import { ITreeTableStorageLogic } from "../../Logics/TreeTableStorageLogic";
 
 export const Mock_IFindAndCreateNewItemsLogic = () => new Mock<IFindAndCreateNewItemsLogic>()
     .setup(x => x.FindAndCreateNewItems(It.IsAny())).returns([])
@@ -17,17 +18,18 @@ export const Mock_IFindAndCreateNewItemsLogic = () => new Mock<IFindAndCreateNew
 describe("FindAndCreateNewItemsLogic", () =>
 {
     let ds: { Id: number, ParentId: number }[];
-    let itemsRepo: IMock<ITreeTableItemRepo>;
-    let itemsRootRepo: IMock<ITreeTableRootItemsRepo>;
+    let storageLogic: IMock<ITreeTableStorageLogic>;
     let logic: FindAndCreateNewItemsLogic;
     beforeEach(() =>
     {
         ds = [];
-        itemsRepo = Mock_ITreeTableItemRepo();
-        itemsRootRepo = Mock_ITreeTableRootItemsRepo();
+        storageLogic = new Mock<ITreeTableStorageLogic>();
 
-        logic = new FindAndCreateNewItemsLogic(itemsRepo.object(), itemsRootRepo.object());
+        logic = new FindAndCreateNewItemsLogic(storageLogic.object());
         TreeTableParentChildSupport.FactoryMethod = () => Mock_TreeTableParentChildSupport().object();
+        storageLogic.setup(x => x.SetParentChild(It.IsAny(), It.IsAny())).returns();
+        storageLogic.setup(x => x.AddItemAsData(It.IsAny())).returns(new TreeTableItemVM({}, 1, -1));
+        storageLogic.setup(x => x.AddRootItem(It.IsAny())).returns(true);
     }),
         afterEach(() =>
         {
@@ -38,6 +40,7 @@ describe("FindAndCreateNewItemsLogic", () =>
         {
             //Arrange
             ds = [];
+            storageLogic.setup(x => x.HasItemByData(It.IsAny())).returns(false);
             //Action
             let newItems = logic.FindAndCreateNewItems(ds);
             //Assert
@@ -48,6 +51,8 @@ describe("FindAndCreateNewItemsLogic", () =>
             //Arrange
             let el0_m1 = { Id: 0, ParentId: -1 };
             ds.push(el0_m1);
+            storageLogic.setup(x => x.HasItemByData(It.IsAny())).returns(false);
+            storageLogic.setup(x => x.AddItemAsData(It.IsAny())).returns(new TreeTableItemVM(el0_m1, 0, -1));
             //Action
             let newItems = logic.FindAndCreateNewItems(ds);
             //Assert
@@ -58,7 +63,8 @@ describe("FindAndCreateNewItemsLogic", () =>
         {
             //Arrange
             let el0_m1 = { Id: 0, ParentId: -1 };
-            itemsRepo.setup(x => x.HasItemByData(el0_m1)).returns(true);
+            storageLogic.setup(x => x.HasItemByData(It.IsAny())).returns(false);
+            storageLogic.setup(x => x.HasItemByData(el0_m1)).returns(true);
             ds.push(el0_m1);
             //Action
             let newItems = logic.FindAndCreateNewItems(ds);
@@ -71,9 +77,9 @@ describe("FindAndCreateNewItemsLogic", () =>
             //Arrange
             let ti0_m1 = new TreeTableItemVM({}, 0, -1);
             let ti1_0 = new TreeTableItemVM({}, 1, 0);
-            itemsRootRepo.setup(x => x.RootItems).returns([ti0_m1]);
+            storageLogic.setup(x => x.RootItems).returns([ti0_m1]);
             let removeItemFn = jest.fn();
-            itemsRootRepo.setup(x => x.RemoveItem).returns(removeItemFn);
+            storageLogic.setup(x => x.RemoveRootItem).returns(removeItemFn);
             //Action
             logic.RemoveRootsIfParentAppeared([ti1_0]);
             //Assert
@@ -84,12 +90,12 @@ describe("FindAndCreateNewItemsLogic", () =>
             //Arrange
             let ti0_m1 = new TreeTableItemVM({}, 0, -1);
             let ti1_0 = new TreeTableItemVM({}, 1, 0);
-            itemsRootRepo.setup(x => x.RootItems).returns([ti1_0]);
-            itemsRootRepo.setup(x => x.RemoveItem(It.IsAny())).returns(true);
+            storageLogic.setup(x => x.RootItems).returns([ti1_0]);
+            storageLogic.setup(x => x.RemoveRootItem(It.IsAny())).returns(true);
             //Action
             logic.RemoveRootsIfParentAppeared([ti0_m1]);
             //Assert
-            itemsRootRepo.verify(x => x.RemoveItem(ti1_0), Times.Once());
+            storageLogic.verify(x => x.RemoveRootItem(ti1_0), Times.Once());
         }),
         //SetupNewItemsParentOrAddAsRoot
         test("SetupNewItemsParentOrAddAsRoot_NothingEmpty", () =>
@@ -98,52 +104,52 @@ describe("FindAndCreateNewItemsLogic", () =>
             //Action
             logic.SetupNewItemsParentOrAddAsRoot([]);
             //Assert
-            itemsRootRepo.verify(x => x.AddItem(It.IsAny()), Times.Never());
-            itemsRepo.verify(x => x.SetParentChild(It.IsAny(), It.IsAny()), Times.Never());
+            storageLogic.verify(x => x.AddRootItem(It.IsAny()), Times.Never());
+            storageLogic.verify(x => x.SetParentChild(It.IsAny(), It.IsAny()), Times.Never());
         }),
         test("SetupNewItemsParentOrAddAsRoot_AddToRoots", () =>
         {
             //Arrange
             let ti0_m1 = new TreeTableItemVM({}, 0, -1);
             let ti1_2 = new TreeTableItemVM({}, 1, 2);
-            itemsRootRepo.setup(x => x.RootItems).returns([ti0_m1]);
-            itemsRepo.setup(x => x.GetItemById(ti0_m1.Id)).returns(ti0_m1);
+            storageLogic.setup(x => x.RootItems).returns([ti0_m1]);
+            storageLogic.setup(x => x.GetItemById(ti0_m1.Id)).returns(ti0_m1);
             //Action
             logic.SetupNewItemsParentOrAddAsRoot([ti1_2]);
             //Assert
-            itemsRootRepo.verify(x => x.AddItem(It.IsAny()), Times.Once());
-            itemsRepo.verify(x => x.SetParentChild(It.IsAny(), It.IsAny()), Times.Never());
+            storageLogic.verify(x => x.AddRootItem(It.IsAny()), Times.Once());
+            storageLogic.verify(x => x.SetParentChild(It.IsAny(), It.IsAny()), Times.Never());
         }),
         test("SetupNewItemsParentOrAddAsRoot_AddAsParent", () =>
         {
             //Arrange
             let ti0_m1 = new TreeTableItemVM({}, 0, -1);
             let ti1_0 = new TreeTableItemVM({}, 1, 0);
-            itemsRootRepo.setup(x => x.RootItems).returns([]);
-            itemsRepo.setup(x => x.GetItemById(ti0_m1.Id)).returns(ti0_m1);
+            storageLogic.setup(x => x.RootItems).returns([]);
+            storageLogic.setup(x => x.GetItemById(ti0_m1.Id)).returns(ti0_m1);
             //Action
             logic.SetupNewItemsParentOrAddAsRoot([ti1_0]);
             //Assert
-            itemsRootRepo.verify(x => x.AddItem(It.IsAny()), Times.Never());
-            itemsRepo.verify(x => x.SetParentChild(It.IsAny(), It.IsAny()), Times.Once());
+            storageLogic.verify(x => x.AddRootItem(It.IsAny()), Times.Never());
+            storageLogic.verify(x => x.SetParentChild(It.IsAny(), It.IsAny()), Times.Once());
         }),
         test("SetupNewItemsParentOrAddAsRoot_SetParentInAlready", () =>
         {
             //Arrange
             let ti0_m1 = new TreeTableItemVM({}, 0, -1);
             let ti1_0 = new TreeTableItemVM({}, 1, 0);
-            itemsRootRepo.setup(x => x.RootItems).returns([ti0_m1]);
-            itemsRepo.setup(x => x.GetItemById(ti0_m1.Id)).returns(ti0_m1);
+            storageLogic.setup(x => x.RootItems).returns([ti0_m1]);
+            storageLogic.setup(x => x.GetItemById(ti0_m1.Id)).returns(ti0_m1);
             //Action
             logic.SetupNewItemsParentOrAddAsRoot([ti1_0]);
             //Assert
-            itemsRepo.verify(x => x.SetParentChild(ti0_m1, ti1_0));
+            storageLogic.verify(x => x.SetParentChild(ti0_m1, ti1_0));
         }),
         test("SetupNewItemsParentOrAddAsRoot_ParentItself", () =>
         {
             //Arrange
             let ti0_0 = new TreeTableItemVM({}, 0, 0);
-            itemsRootRepo.setup(x => x.RootItems).returns([]);
+            storageLogic.setup(x => x.RootItems).returns([]);
             //Action
             let d = () => logic.SetupNewItemsParentOrAddAsRoot([ti0_0]);
             //Assert

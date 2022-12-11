@@ -7,6 +7,7 @@ node Logics  {
 object Logic {
 TreeTableParentChildSupport
 FindAndCreateNewItemsLogic
+TreeTableStorageLogic
 }
 }
 database Repositories {
@@ -45,12 +46,10 @@ TreeTableVM -d-|> VM_Base
 
 ' Classes Knows about each others
 TreeTableVM -l-> TreeTableItemVM 
-TreeTableVM --> Repo::TreeTableRootItemsRepo
-TreeTableVM --> Repo::TreeTableItemRepo
 TreeTableVM --> Logic::FindAndCreateNewItemsLogic
 TreeTableItemVM --> Logic::TreeTableParentChildSupport
-Logic::FindAndCreateNewItemsLogic --> Repo::TreeTableItemRepo 
-Logic::FindAndCreateNewItemsLogic --> Repo::TreeTableRootItemsRepo
+Logic::TreeTableStorageLogic --> Repo::TreeTableItemRepo 
+Logic::TreeTableStorageLogic --> Repo::TreeTableRootItemsRepo
 TreeTableVM -u-> TreeTableOptions  
 
 ' Callbacks

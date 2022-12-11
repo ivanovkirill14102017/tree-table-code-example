@@ -45,6 +45,8 @@ export class TreeTableItemRepo implements ITreeTableItemRepo
     }
     public GetItemById(id: any): TreeTableItemVM | null
     {
+        if (id == null)
+            return null;
         return this._AllItems.get(id) ?? null;
     }
     public SetParentChild(parent: TreeTableItemVM, child: TreeTableItemVM)
