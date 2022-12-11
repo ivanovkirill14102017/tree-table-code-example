@@ -7,4 +7,4 @@ Simplest table with support tree hierarhy.
 
 Простая таблица с поддержкой древовидности.
 
-![alt text](https://github.com/ivanovkirill14102017/tree-table-code-example/blob/main/diagram/diagram.png?raw=true)
+![alt text](https://raw.githubusercontent.com/ivanovkirill14102017/tree-table-code-example/7e280b85fa7d6e40aa24d1dbb783588da6b34d1a/diagram/diagram.png)
