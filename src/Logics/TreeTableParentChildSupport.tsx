@@ -1,11 +1,7 @@
 import { TreeTableItemVM } from "../ViewModels/TreeTableItemVM";
 
-//namespace/tests/diagram/rus
-
 /** Support class for remove logic from TreeItemVM.
- *  Work by Functional Programming(FP) idioma becouse TreeTableVM trustedly open needed closes.
- *  Класс поддержки, чтобы убрать логику из TreeItemVM.
- *  Работает по принципу ФП, так как работает с закрытыми данными, предосталвяемыми TreeTableVM. */
+ *  Work by Functional Programming(FP) idioma becouse TreeTableVM trustedly open needed closes. */
 export class TreeTableParentChildSupport
 {
     public static FactoryGet() { return this._FactoryMethod(); }

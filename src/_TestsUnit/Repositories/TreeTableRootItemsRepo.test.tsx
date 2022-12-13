@@ -1,11 +1,5 @@
-import { Mock, It, Times } from "moq.ts";
-import { ITreeTableRootItemsRepo, TreeTableRootItemsRepo } from "../../Repositories/TreeTableRootItemsRepo";
+import { TreeTableRootItemsRepo } from "../../Repositories/TreeTableRootItemsRepo";
 import { TreeTableItemVM } from "../../ViewModels/TreeTableItemVM";
-
-export const Mock_ITreeTableRootItemsRepo = () => new Mock<ITreeTableRootItemsRepo>()
-    .setup(x => x.AddItem(It.IsAny())).returns(true)
-    .setup(x => x.RemoveItem(It.IsAny())).returns(true)
-    .setup(x => x.RootItems).returns([]);
 
 /** Sealed class for mock override closes */
 class MockedTreeTableRootItemsRepo extends TreeTableRootItemsRepo

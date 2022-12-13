@@ -1,7 +1,7 @@
 import { IFindAndCreateNewItemsLogic, FindAndCreateNewItemsLogic } from "../Logics/FindAndCreateNewItemsLogic";
 import { ITreeTableStorageLogic, TreeTableStorageLogic } from "../Logics/TreeTableStorageLogic";
-import { ITreeTableItemRepo, TreeTableItemRepo } from "../Repositories/TreeTableItemRepo";
-import { ITreeTableRootItemsRepo, TreeTableRootItemsRepo } from "../Repositories/TreeTableRootItemsRepo";
+import { TreeTableItemRepo } from "../Repositories/TreeTableItemRepo";
+import { TreeTableRootItemsRepo } from "../Repositories/TreeTableRootItemsRepo";
 import { TreeTableItemVM } from "./TreeTableItemVM";
 import { TreeTableOptions } from "./TreeTableOptions";
 import VM_Base from "./VM_Base";
@@ -9,13 +9,11 @@ import VM_Base from "./VM_Base";
 /** Present simple tree table worked by OOP idioma.
  * Usage example:
     // Declare or store or redux or contexting somewhere VM and 'array' data with decalre properties for Id and ParentId:
-    // Где-то должен быть определён класс (например, Redux или Context) и массив:
     const treeModel = useMemo(() => new TreeTableVM().SetDataSource(treeModelArray, "Id", "ParentId"), []);
-
+ 
     // Change your array and after changes complete just call 'NotifyDataSourceWasChanged' for apply it to UI:
-    // После изменений в связанном массиве, необходимо вызвать 'NotifyDataSourceWasChanged' и изменения будут применены:
     treeModel.NotifyDataSourceWasChanged();
-
+ 
     // Then ReactNode return:
     <UC_TreeTable model={treeModel} >
         <UC_TreeTableColumn Width="auto" FieldName="Id" />
@@ -34,8 +32,7 @@ export class TreeTableVM extends VM_Base
     }
     private _FindAndCreateNewItemsLogic: IFindAndCreateNewItemsLogic;
     private _TreeTableStorageLogic: ITreeTableStorageLogic;
-    /** Contain other shared properties like indent size, indicate symbols and others. 
-        Содержит общие свойства, например отступ и символы развернуть/свернуть. */
+    /** Contain other shared properties like indent size, indicate symbols and others.  */
     public readonly Options: TreeTableOptions = new TreeTableOptions();
     /** Indicate UI catched exception. */
     public get RuinedErrorText(): string | null { return this._RuinedErrorText; } private set RuinedErrorText(value: string | null) { this._RuinedErrorText = value; } private _RuinedErrorText: string | null = null;

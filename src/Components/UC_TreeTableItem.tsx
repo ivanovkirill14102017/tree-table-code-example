@@ -1,14 +1,14 @@
-﻿import React, { useState, useEffect, useRef, useMemo } from "react";
+﻿import React from "react";
 import useRenderCallbackVM from "../Hooks/useRenderCallbackVM";
 import { TreeTableItemVM } from "../ViewModels/TreeTableItemVM";
 import { TreeTableOptions } from "../ViewModels/TreeTableOptions";
 
-export interface IUC_TreeTableDraggableItem
+export interface IUC_TreeTableItem
 {
     model: TreeTableItemVM;
     options: TreeTableOptions;
 }
-export const UC_TreeTableItem: React.FC<IUC_TreeTableDraggableItem> = ({ ...props }) =>
+export const UC_TreeTableItem: React.FC<IUC_TreeTableItem> = ({ ...props }) =>
 {
     const { model, options } = props;
     useRenderCallbackVM(model);

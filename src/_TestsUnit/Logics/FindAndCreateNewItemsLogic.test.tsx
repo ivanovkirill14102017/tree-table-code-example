@@ -1,19 +1,9 @@
-import { FindAndCreateNewItemsLogic, IFindAndCreateNewItemsLogic } from "../../Logics/FindAndCreateNewItemsLogic";
-import { ITreeTableItemRepo } from "../../Repositories/TreeTableItemRepo";
-import { ITreeTableRootItemsRepo } from "../../Repositories/TreeTableRootItemsRepo";
+import { FindAndCreateNewItemsLogic } from "../../Logics/FindAndCreateNewItemsLogic";
 import { TreeTableItemVM } from "../../ViewModels/TreeTableItemVM";
 import { IMock, It, Mock, Times } from "moq.ts";
 import { TreeTableParentChildSupport } from "../../Logics/TreeTableParentChildSupport";
 import { Mock_TreeTableParentChildSupport } from "./TreeTableParentChildSupport.test";
-import { Mock_ITreeTableItemRepo } from "../Repositories/TreeTableItemRepo.test";
-import { Mock_ITreeTableRootItemsRepo } from "../Repositories/TreeTableRootItemsRepo.test";
 import { ITreeTableStorageLogic } from "../../Logics/TreeTableStorageLogic";
-
-export const Mock_IFindAndCreateNewItemsLogic = () => new Mock<IFindAndCreateNewItemsLogic>()
-    .setup(x => x.FindAndCreateNewItems(It.IsAny())).returns([])
-    .setup(x => x.ProcessItems(It.IsAny())).returns()
-    .setup(x => x.RemoveRootsIfParentAppeared(It.IsAny())).returns()
-    .setup(x => x.SetupNewItemsParentOrAddAsRoot(It.IsAny())).returns();
 
 describe("FindAndCreateNewItemsLogic", () =>
 {

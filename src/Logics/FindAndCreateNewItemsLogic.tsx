@@ -1,5 +1,3 @@
-import { ITreeTableItemRepo } from "../Repositories/TreeTableItemRepo";
-import { ITreeTableRootItemsRepo } from "../Repositories/TreeTableRootItemsRepo";
 import { TreeTableItemVM } from "../ViewModels/TreeTableItemVM";
 import { ITreeTableStorageLogic } from "./TreeTableStorageLogic";
 
@@ -8,14 +6,11 @@ export interface IFindAndCreateNewItemsLogic
 {
     /** Point of start apply changes. */
     ProcessItems(ds: ReadonlyArray<any>): void;
-    /** Add new appeared items into HashTable. Return list of new items. 
-        Находит новые элементы и помещает в HashTable. Вовращает список новых элементов. */
+    /** Add new appeared items into HashTable. Return list of new items.  */
     FindAndCreateNewItems(ds: ReadonlyArray<any>): TreeTableItemVM[]
-    /** Maybe root can meet his parent now? 
-        Убирает корневые элементы если появлись родители. */
+    /** Maybe root can meet his parent now?  */
     RemoveRootsIfParentAppeared(newItems: TreeTableItemVM[]): void;
-    /** Hashing child/parents relations. If item is orphan - move it to roots. 
-        Проставляет родителей и если их нет - помещает в корень. */
+    /** Hashing child/parents relations. If item is orphan - move it to roots.  */
     SetupNewItemsParentOrAddAsRoot(newItems: TreeTableItemVM[]): void;
 };
 export class FindAndCreateNewItemsLogic implements IFindAndCreateNewItemsLogic
